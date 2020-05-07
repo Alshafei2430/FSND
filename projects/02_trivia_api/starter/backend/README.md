@@ -34,6 +34,7 @@ This will install all of the required packages we selected within the `requireme
 With Postgres running, restore a database using the trivia.psql file provided. From the backend folder in terminal run:
 ```bash
 psql trivia < trivia.psql
+
 ```
 
 ## Running the server
@@ -87,9 +88,133 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
+GET '/questions'
+- Fetches a dictionary contaioning a list of 10 questions in which every element is an object with keys answer, category, difficulty, id, question and values are the corresponding string of that key and number of total questions, current category and a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category.
+- Request Arguments: currentCategory which is an intger corresponding to the category's id, page which is also an integer.
+- Returns: An object with keys, questions:list_of_questions,number_of_total_questions:number_of_total_questions, current_category:category_id, categories:list_of_categories key:value pairs.
+{"categories": {
+"1": "Science", 
+"2": "Art", 
+"3": "Geography", 
+"4": "History", 
+"5": "Entertainment", 
+"6": "Sports"
+}, 
+"current_category": null, 
+"questions": [
+{"answer": "Maya Angelou", 
+"category": 4, 
+"difficulty": 2, 
+"id": 5, 
+"question": "Whose autobiography is entitled 'I Know Why theCagedBird Sings'?"}, 
+{"answer": "Tom Cruise", 
+"category": 5, 
+"difficulty": 4, 
+"id": 4, 
+"question": "What actor did author Anne Rice first denounce,thenpraise in the role of her beloved Lestat?"}, 
+{"answer": "Edward Scissorhands", 
+"category": 5, 
+"difficulty": 3, 
+"id": 6, 
+"question": "What was the title of the 1990 fantasy directed byTimBurton about a young man with multi-bladed appendages?"}, 
+{"answer": "Brazil", 
+"category": 6, 
+"difficulty": 3, 
+"id": 10, 
+"question": "Which is the only team to play in every soccer WorldCuptournament?"}, 
+{"answer": "Uruguay", 
+"category": 6, 
+"difficulty": 4, 
+"id": 11, 
+"question": "Which country won the first ever soccer World Cupin1930?"}, 
+{"answer": "George Washington Carver", 
+"category": 4, 
+"difficulty": 2, 
+"id": 12, 
+"question": "Who invented Peanut Butter?"}, 
+{"answer": "Lake Victoria", 
+"category": 3, 
+"difficulty": 2, 
+"id": 13, 
+"question": "What is the largest lake in Africa?"}, 
+{"answer": "The Palace of Versailles", 
+"category": 3, 
+"difficulty": 3, 
+"id": 14, 
+"question": "In which royal palace would you find the Hall ofMirrors"}, 
+{"answer": "Agra", 
+"category": 3, 
+"difficulty": 2, 
+"id": 15, 
+"question": "The Taj Mahal is located in which Indian city?"}, 
+{"answer": "Mona Lisa", 
+"category": 2, 
+"difficulty": 3, 
+"id": 17, 
+"question": "La Giaconda is better known as what?"}
+], 
+"success": true, 
+"total_questions": 18
+}
+GET '/categories/{id}/questions'
+- Fetches a dictionary of questions based on a category in which every element is an object with keys answer, category, difficulty, id, question and values are the corresponding string of that key, the current category and total number of questions.
+- Request Arguments: id of the requested category.
+- Returns: An object with keys, questions: that contains a list of questions in which every element is an object of, answer:answer_string, category: category_id, difficulty: difficulty_string, id: id_string,question:question_string key:value pairs,current_category:category_idtotal_questions: total_questions'number key value pairs.
+{"current_category": 5, 
+"questions": [{"answer": "Tom Cruise", 
+"category": 5, 
+"difficulty": 4, 
+"id": 4, 
+"question": "What actor did author Anne Rice first denounce,thenpraisein the role of her beloved Lestat?"} 
+{"answer": "Edward Scissorhands", 
+"category": 5, 
+"difficulty": 3, 
+"id": 6, 
+"question": "What was the title of the 1990 fantasy directed byTimBurton about a young man with multi-bladed appendages?"}], 
+"success": true, 
+"total_questions": 2}
+
+POST '/questions'
+- Creates a new question if you provided a json object with keys answer, category, difficulty, id, question and values are the corresponding string of that key or Fetches a dictionary of questions based on a search in case you provided a search term term as argument.
+- Request Arguments: searchTerm if you want to search.
+- Returns:
+1. An object with keys, created: created_quiestion_id key:value pairs.
+{"success": True,
+"created": question.id}
+2. An object with keys, questions: list_of_questions, total_questions_found:number_of_questions_found key:value pairs.
+{'succes': True,
+'questions': [
+{"answer": "Maya Angelou", 
+"category": 4, 
+"difficulty": 2, 
+"id": 5, 
+"question": "Whose autobiography is entitled 'I Know Why theCagedBird Sings'?"},
+{"answer": "Mona Lisa", 
+"category": 2, 
+"difficulty": 3, 
+"id": 17, 
+"question": "La Giaconda is better known as what?"}],
+'total_questions_found': 2}
+
+POST '/quizzes'
+- Fetches a dictionary of a random question which is an object with keys answer, category, difficulty, id, question and values are the corresponding string of that key.
+- Request Arguments: None
+- Returns: An object with key question:object_of_random_question key: value pairs 
+{'question': 
+{"answer": "Tom Cruise", 
+"category": 5, 
+"difficulty": 4, 
+"id": 4, 
+"question": "What actor did author Anne Rice firstdenounce, then praise in the role of her beloved Lestat?"},
+'success': True,}
+
+DELETE '/questions/{id}'
+- Deletes a question 
+- Request Arguments: The id of the question to be deleted.
+- Returns: An object with key deleted:id_of_deleted_question key:value pairs.
+{'deleted': 5,
+'success': True,}
 ```
-
-
 ## Testing
 To run the tests, run
 ```

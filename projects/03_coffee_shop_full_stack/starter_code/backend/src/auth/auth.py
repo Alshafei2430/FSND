@@ -1,13 +1,13 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'shaf3y.auth0.com'
+AUTH0_DOMAIN = 'shaf3y.us.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'udacity_cafe'
+API_AUDIENCE = 'udacity-cafe'
 
 ## AuthError Exception
 '''
@@ -34,6 +34,7 @@ def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header
     """
     auth = request.headers.get('Authorization', None)
+
     if not auth:
         raise AuthError({
             'code': 'authorization_header_missing',
@@ -124,6 +125,7 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e']
             }
+    # print("rsa_key", rsa_key)
     if rsa_key:
         try:
             payload = jwt.decode(
@@ -133,10 +135,10 @@ def verify_decode_jwt(token):
                 audience=API_AUDIENCE,
                 issuer='https://' + AUTH0_DOMAIN + '/'
             )
-
+            # print("payload", payload)
             return payload
-
         except jwt.ExpiredSignatureError:
+            print("here")
             raise AuthError({
                 'code': 'token_expired',
                 'description': 'Token expired.'

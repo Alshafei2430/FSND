@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-db_drop_and_create_all()
+# db_drop_and_create_all()
 
 ## ROUTES
 @app.route("/")
@@ -45,7 +45,7 @@ def drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route("/drinks-detail")
-@requires_auth('get:drinks-details')
+@requires_auth('get:drinks-detail')
 def drink_details(jwt):
     return "not implemented"
 
@@ -59,11 +59,20 @@ def drink_details(jwt):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
-@app.route("/drinks")
+@app.route("/drinks", methods=['POST'])
 @requires_auth('post:drinks')
-def drink_details(jwt):
-    print(jwt)
-    return "not implemented"
+def create_drink(jwt):
+    response = request.get_json()
+    print(response)
+    drink = Drink(title = response['title'], recipe = json.dumps(response['recipe']))
+    drink.insert()
+    print(drink.long())
+    drink_long = drink.long()
+    print(">>>>>>>>>>>>>>>>>>>", drink_long)
+    return jsonify({
+        "success": True,
+        "drinks": drink_long
+    })
 
 '''
 @TODO implement endpoint
@@ -76,9 +85,9 @@ def drink_details(jwt):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
-@app.route("/drinks/<>")
-@requires_auth('post:drinks')
-def drink_details(jwt):
+@app.route("/drinks/<int:drink_id>", methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drinks(jwt, drink_id):
     print(jwt)
     return "not implemented"
 
@@ -92,7 +101,11 @@ def drink_details(jwt):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-
+@app.route("/drinks/<int:drink_id>", methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(jwt, drink_id):
+    print(jwt)
+    return "not implemented"
 
 ## Error Handling
 '''

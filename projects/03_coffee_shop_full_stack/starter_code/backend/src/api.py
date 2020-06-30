@@ -18,6 +18,11 @@ CORS(app)
 '''
 # db_drop_and_create_all()
 
+def convert_dict_drink_to_array(dict_drink):
+    drink_long = []
+    drink_long.append(dict_drink)
+    return drink_long
+    
 ## ROUTES
 @app.route("/")
 def greetings():
@@ -32,9 +37,11 @@ def greetings():
 '''
 @app.route("/drinks")
 def drinks():
-    drinks = Drink.query.all()
-    print(drinks)
-    return "not implemented"
+    drinks = [drink.short() for drink in  Drink.query.all()]
+    return jsonify({
+        "success": True,
+        'drinks': drinks
+    })
 
 '''
 @TODO implement endpoint
@@ -47,7 +54,11 @@ def drinks():
 @app.route("/drinks-detail")
 @requires_auth('get:drinks-detail')
 def drink_details(jwt):
-    return "not implemented"
+    drinks = [drink.long() for drink in Drink.query.order_by(Drink.id).all()]
+    return jsonify({
+        "success": True,
+        "drinks": drinks
+        })
 
 
 '''
@@ -63,15 +74,12 @@ def drink_details(jwt):
 @requires_auth('post:drinks')
 def create_drink(jwt):
     response = request.get_json()
-    print(response)
     drink = Drink(title = response['title'], recipe = json.dumps(response['recipe']))
     drink.insert()
-    print(drink.long())
-    drink_long = drink.long()
-    print(">>>>>>>>>>>>>>>>>>>", drink_long)
+    drink_id = drink.id
     return jsonify({
         "success": True,
-        "drinks": drink_long
+        "drinks": convert_dict_drink_to_array(Drink.query.get(drink_id).long())
     })
 
 '''
@@ -88,8 +96,33 @@ def create_drink(jwt):
 @app.route("/drinks/<int:drink_id>", methods=['PATCH'])
 @requires_auth('patch:drinks')
 def update_drinks(jwt, drink_id):
-    print(jwt)
-    return "not implemented"
+    response = request.get_json()
+    drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
+    if drink is not None:
+        try :
+            if 'id' in response:
+                drink.id = response["id"]
+            if 'title' in response:
+                drink.title = response['title']
+            if 'recipe' in response:
+                print(f'test update endpoint {response}')
+                drink.recipe = json.dumps(response['recipe'])
+            drink.update()
+            drink_id = drink.id
+            return jsonify({
+                "success": True,
+                "drinks": convert_dict_drink_to_array(Drink.query.get(drink_id).long())
+            }), 200
+
+        except:
+            abort(400)
+    else:
+        abort(404) 
+    # print(jwt)
+    return jsonify({
+        "success": False,
+        "status code": 404,
+    })
 
 '''
 @TODO implement endpoint
@@ -104,8 +137,25 @@ def update_drinks(jwt, drink_id):
 @app.route("/drinks/<int:drink_id>", methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(jwt, drink_id):
-    print(jwt)
-    return "not implemented"
+    drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
+    print("ooooooooooooooo", drink)
+    if drink is not None:
+        try :
+            drink.delete()
+            return jsonify({
+                "success": True,
+                "delete": drink_id
+            }), 200
+
+        except:
+            abort(400)
+    else:
+        abort(404) 
+    # print(jwt)
+    return jsonify({
+        "success": False,
+        "status code": 404,
+    })
 
 ## Error Handling
 '''
@@ -134,9 +184,23 @@ def unprocessable(error):
 @TODO implement error handler for 404
     error handler should conform to general task above 
 '''
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        'success': False,
+        'error': 404,
+        'message': 'Resource not found',
+    }), 404
 
 
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
 '''
+@app.errorhandler(AuthError)
+def not_found(error):
+    return jsonify({
+      'success': False,
+      'error': AuthError,
+      'message': 'authentication error',
+    }), AuthError

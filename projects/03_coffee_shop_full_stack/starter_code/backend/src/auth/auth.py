@@ -62,8 +62,6 @@ def get_token_auth_header():
 
     token = parts[1]
     return token
-# def get_token_auth_header():
-#    raise Exception('Not Implemented')
 
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -87,10 +85,8 @@ def check_permissions(permission, payload):
         raise AuthError({
             'code': 'unauthorized',
             'description': 'Permission not found.'
-        }, 403)
+        }, 401)
     return True
-# def check_permissions(permission, payload):
-#     raise Exception('Not Implemented')
 
 '''
 @TODO implement verify_decode_jwt(token) method
@@ -125,7 +121,6 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e']
             }
-    # print("rsa_key", rsa_key)
     if rsa_key:
         try:
             payload = jwt.decode(
@@ -138,7 +133,6 @@ def verify_decode_jwt(token):
             # print("payload", payload)
             return payload
         except jwt.ExpiredSignatureError:
-            print("here")
             raise AuthError({
                 'code': 'token_expired',
                 'description': 'Token expired.'
@@ -158,8 +152,6 @@ def verify_decode_jwt(token):
                 'code': 'invalid_header',
                 'description': 'Unable to find the appropriate key.'
             }, 400)
-# def verify_decode_jwt(token):
-#     raise Exception('Not Implemented')
 
 '''
 @TODO implement @requires_auth(permission) decorator method
@@ -185,15 +177,3 @@ def requires_auth(permissions=''):
 
         return wrapper
     return requires_auth_decorator
-
-# def requires_auth(permission=''):
-#     def requires_auth_decorator(f):
-#         @wraps(f)
-#         def wrapper(*args, **kwargs):
-#             token = get_token_auth_header()
-#             payload = verify_decode_jwt(token)
-#             check_permissions(permission, payload)
-#             return f(payload, *args, **kwargs)
-
-#         return wrapper
-#     return requires_auth_decorator
